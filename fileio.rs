@@ -148,10 +148,17 @@ pub fn exists(path: &str) -> bool {
 }
 
 /// `a/b/c.d` -> `a/b/`
-pub fn parent(path: &str) -> String {
-    let path = Path::new(path);
+pub fn parent(path: &str) -> Result<String, FileError> {
+    let std_path = Path::new(path);
 
-    path.parent().map(|p| p.to_string_lossy().to_string()).unwrap_or_else(|| String::new())
+    std_path.parent().map(
+        |p| p.to_string_lossy().to_string()
+    ).ok_or_else(
+        || FileError::unknown(
+            String::from("function `parent` died"),
+            Some(path.to_string()),
+        )
+    )
 }
 
 pub fn create_dir(path: &str) -> Result<(), FileError> {
@@ -244,15 +251,15 @@ impl FileError {
         }
     }
 
+    pub fn unknown(msg: String, path: Option<String>) -> Self {
+        FileError {
+            kind: FileErrorKind::Unknown(msg),
+            given_path: path,
+        }
+    }
+
     pub fn render_error(&self) -> String {
-        let path = match self.kind {
-            FileErrorKind::FileNotFound
-            | FileErrorKind::PermissionDenied
-            | FileErrorKind::AlreadyExists => {
-                self.given_path.as_ref().unwrap().to_string()
-            },
-            FileErrorKind::OsStrErr(_) => String::new(),
-        };
+        let path = self.given_path.as_ref().map(|p| p.to_string()).unwrap_or(String::new());
 
         match &self.kind {
             FileErrorKind::FileNotFound => format!(
@@ -263,6 +270,9 @@ impl FileError {
             ),
             FileErrorKind::AlreadyExists => format!(
                 "file already exists: `{path}`"
+            ),
+            FileErrorKind::Unknown(msg) => format!(
+                "unknown file error: `{msg}`"
             ),
             FileErrorKind::OsStrErr(os_str) => format!(
                 "error converting os_str: `{os_str:?}`"
@@ -288,5 +298,6 @@ pub enum FileErrorKind {
     FileNotFound,
     PermissionDenied,
     AlreadyExists,
+    Unknown(String),
     OsStrErr(OsString),
 }
