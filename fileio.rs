@@ -30,9 +30,9 @@ impl From<WriteMode> for OpenOptions {
 
         match m {
             WriteMode::AlwaysAppend => { result.append(true); },
-            WriteMode::AppendOrCreate => { result.append(true).create(true); }
-            WriteMode::CreateOrTruncate => { result.write(true).truncate(true).create(true); }
-            WriteMode::AlwaysCreate => { result.write(true).create_new(true); }
+            WriteMode::AppendOrCreate => { result.append(true).create(true); },
+            WriteMode::CreateOrTruncate => { result.write(true).truncate(true).create(true); },
+            WriteMode::AlwaysCreate => { result.write(true).create_new(true); },
         }
 
         result
@@ -196,12 +196,12 @@ pub fn read_dir(path: &str) -> Result<Vec<String>, FileError> {
                 match entry {
                     Err(e) => {
                         return Err(FileError::from_std(e, path));
-                    }
+                    },
                     Ok(e) => {
                         if let Some(ee) = e.path().to_str() {
                             result.push(ee.to_string());
                         }
-                    }
+                    },
                 }
             }
 
@@ -266,7 +266,7 @@ impl FileError {
                 "file not found: `{path}`"
             ),
             FileErrorKind::PermissionDenied => format!(
-                "permission denied: `{path}`",
+                "permission denied: `{path}`"
             ),
             FileErrorKind::AlreadyExists => format!(
                 "file already exists: `{path}`"
