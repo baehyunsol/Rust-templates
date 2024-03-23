@@ -186,6 +186,14 @@ pub fn last_modified(path: &str) -> Result<u64, FileError> {
     }
 }
 
+// in bytes
+pub fn file_size(path: &str) -> Result<u64, FileError> {
+    match fs::metadata(path) {
+        Ok(m) => Ok(m.len()),
+        Err(e) => Err(FileError::from_std(e, path)),
+    }
+}
+
 pub fn read_dir(path: &str) -> Result<Vec<String>, FileError> {
     match fs::read_dir(path) {
         Err(e) => Err(FileError::from_std(e, path)),
