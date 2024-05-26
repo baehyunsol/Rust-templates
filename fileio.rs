@@ -51,7 +51,7 @@ pub fn read_string(path: &str) -> Result<String, FileError> {
         Ok(mut f) => match f.read_to_string(&mut s) {
             Ok(_) => Ok(s),
             Err(e) => Err(FileError::from_std(e, path)),
-        }
+        },
     }
 }
 
@@ -80,7 +80,7 @@ pub fn file_name(path: &str) -> Result<String, FileError> {
         Some(s) => match s.to_str() {
             Some(ext) => Ok(ext.to_string()),
             None => Err(FileError::os_str_err(s.to_os_string())),
-        }
+        },
     }
 }
 
@@ -93,7 +93,7 @@ pub fn extension(path: &str) -> Result<Option<String>, FileError> {
         Some(s) => match s.to_str() {
             Some(ext) => Ok(Some(ext.to_string())),
             None => Err(FileError::os_str_err(s.to_os_string())),
-        }
+        },
     }
 }
 
@@ -106,7 +106,7 @@ pub fn basename(path: &str) -> Result<String, FileError> {
         Some(s) => match s.to_str() {
             Some(ext) => Ok(ext.to_string()),
             None => Err(FileError::os_str_err(s.to_os_string())),
-        }
+        },
     }
 }
 
@@ -215,7 +215,7 @@ pub fn read_dir(path: &str) -> Result<Vec<String>, FileError> {
 
             result.sort();
             Ok(result)
-        }
+        },
     }
 }
 
