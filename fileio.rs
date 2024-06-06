@@ -5,7 +5,7 @@ use std::ffi::OsString;
 use std::fmt;
 use std::fs::{self, File, OpenOptions};
 use std::hash::{Hash, Hasher};
-use std::io::{self, Read, Write};
+use std::io::{self, Read, Seek, SeekFrom, Write};
 use std::path::{Path, PathBuf};
 use std::str::FromStr;
 
@@ -36,6 +36,29 @@ impl From<WriteMode> for OpenOptions {
         }
 
         result
+    }
+}
+
+/// if it fails to read from `from`, that's an error\
+/// if it fails to read to `to`, that's not an error
+pub fn read_bytes_offset(path: &str, from: usize, to: usize) -> Result<Vec<u8>, FileError> {
+    assert!(to >= from);
+
+    match File::open(path) {
+        Err(e) => Err(FileError::from_std(e, path)),
+        Ok(mut f) => match f.seek(SeekFrom::Start(from as u64)) {
+            Err(e) => Err(FileError::from_std(e, path)),
+            Ok(_) => {
+                let mut handle = f.take((to - from) as u64);
+                let mut buffer = Vec::with_capacity(to - from);
+
+                if let Err(e) = handle.read_to_end(&mut buffer) {
+                    return Err(FileError::from_std(e, path));
+                }
+
+                Ok(buffer)
+            },
+        },
     }
 }
 
